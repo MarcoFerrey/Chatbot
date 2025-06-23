@@ -7,8 +7,7 @@
   "scripts": {
     "lint": "eslint . --no-ignore",
     "dev": "npm run lint && nodemon ./src/app.js",
-    "start": "node ./src/app.js",
-    "postinstall": "pnpm exec puppeteer browsers install chrome"
+    "start": "node ./src/app.js"
   },
   "keywords": [],
   "dependencies": {

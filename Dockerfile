@@ -1,39 +1,43 @@
-# Image size ~ 400MB
-FROM node:21-alpine3.18 as builder
-
+# ---------- etapa builder ----------
+FROM node:21-alpine3.18 AS builder
 WORKDIR /app
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
-ENV PNPM_HOME=/usr/local/bin
+
+COPY package*.json *-lock.yaml ./
+RUN pnpm install                                   \
+    && apk add --no-cache git make g++ python3     \
+    && pnpm build || true                          \
+    && apk del git make g++ python3                \
+    && rm -rf /root/.cache /tmp/*
 
 COPY . .
 
-COPY package*.json *-lock.yaml ./
-
-RUN apk add --no-cache --virtual .gyp \
-        python3 \
-        make \
-        g++ \
-    && apk add --no-cache git \
-    && pnpm install \
-    && apk del .gyp
-
-FROM node:21-alpine3.18 as deploy
-
+# ---------- etapa deploy ----------
+FROM node:21-alpine3.18 AS deploy
 WORKDIR /app
 
-ARG PORT
-ENV PORT $PORT
-EXPOSE $PORT
+# ➊ instala Chromium + dependencias mínimas
+RUN apk add --no-cache \
+      chromium \
+      nss \
+      freetype \
+      harfbuzz \
+      ttf-freefont \
+      && addgroup -g 1001 -S nodejs \
+      && adduser -S -u 1001 nodejs
 
-COPY --from=builder /app ./
-COPY --from=builder /app/*.json /app/*-lock.yaml ./
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 
-RUN corepack enable && corepack prepare pnpm@latest --activate 
-ENV PNPM_HOME=/usr/local/bin
+# copias artefactos del builder
+COPY --from=builder /app .
 
-RUN npm cache clean --force && pnpm install --production --ignore-scripts \
-    && addgroup -g 1001 -S nodejs && adduser -S -u 1001 nodejs \
-    && rm -rf $PNPM_HOME/.npm $PNPM_HOME/.node-gyp
+# ➋ instala solo prod deps (con scripts para que otras libs no fallen)
+RUN corepack enable && corepack prepare pnpm@latest --activate \
+    && pnpm install --prod \
+    && rm -rf /root/.npm /root/.pnpm-store
 
-CMD ["npm", "start"]
+USER nodejs
+EXPOSE ${PORT:-3008}
+CMD ["node", "src/app.js"]
