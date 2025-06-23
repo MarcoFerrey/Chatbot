@@ -238,13 +238,6 @@ const main = async () => {
     
     const adapterProvider = createProvider(Provider)
 
-    adapterProvider.vendor.ev.on('connection.update', ({    qr  }) => {
-        if (qr) {
-            console.log('\n⚡ Escaneá este QR en tu WhatsApp (copia el texto y generá el código QR):\n')
-            console.log(qr)          // 🔥 aparece como string base64 en los Deploy Logs de Railway
-        }
-    })
-
     const adapterDB = new Database({
         host: process.env.POSTGRES_DB_HOST,
         user: process.env.POSTGRES_DB_USER,
@@ -262,6 +255,14 @@ const main = async () => {
             timeout: 30000,        // 30 s de tope por mensaje: sobrado para esos ~7 s de tabla
             concurrencyLimit: 50    // permite hasta 20 tareas en paralelo (tus ~15 usuarios caben)
         }
+    })
+
+    /* ────────────── 2. AHORA sí existe vendor, pon el listener ─────────────── */
+    adapterProvider.vendor.ev.on('connection.update', ({ qr }) => {
+    if (qr) {
+        console.log('\n⚡ Escaneá este QR en tu WhatsApp (copia el texto y generá el código QR):\n')
+        console.log(qr)      // aparecerá en los Deploy Logs de Railway
+    }
     })
 
     adapterProvider.server.post(
