@@ -7,6 +7,8 @@ import { join } from 'path'
 import { fileURLToPath } from 'url'
 import { dirname} from 'path'
 import fs from 'fs/promises'
+import dotenv from 'dotenv'
+dotenv.config()
 
 import { flowSatisfaccion, flowBajo_satisfaccion, flowMedio_satisfaccion, flowAlto_satisfaccion, flowTerminado_satisfaccion } from './events/satisfaccion/encuestaSatisfaccion.js'
 
@@ -236,11 +238,11 @@ const main = async () => {
     
     const adapterProvider = createProvider(Provider)
     const adapterDB = new Database({
-        host: 'localhost',
-        user: 'postgres',
-        database: 'ferey',
-        password: '123',
-        port: '5432'
+        host: process.env.POSTGRES_DB_HOST,
+        user: process.env.POSTGRES_DB_USER,
+        database: process.env.POSTGRES_DB_NAME,
+        password: process.env.POSTGRES_DB_PASSWORD,
+        port: process.env.POSTGRES_DB_PORT
     })
 
     const { handleCtx, httpServer } = await createBot({
