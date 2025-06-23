@@ -38,6 +38,5 @@ RUN corepack enable && corepack prepare pnpm@latest --activate \
     && pnpm install --prod \
     && rm -rf /root/.npm /root/.pnpm-store
 
-USER nodejs
 EXPOSE ${PORT:-3008}
 CMD ["node", "src/app.js"]
