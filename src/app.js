@@ -258,16 +258,29 @@ const main = async () => {
         }
     })
 
-    // 👉 en cuanto exista el socket, imprime el QR
-    const sock = adapterProvider.vendor                         // ya está creado
+    /* helper  – espera a que vendor exista */
+    const waitForVendor = async (provider, maxMs = 5_000) => {
+    const started = Date.now()
+    return new Promise((resolve, reject) => {
+        const loop = () => {
+        if (provider.vendor && provider.vendor.ev) return resolve(provider.vendor)
+        if (Date.now() - started > maxMs) return reject(new Error('Baileys no inició a tiempo'))
+        setTimeout(loop, 200)      // vuelve a probar en 200 ms
+        }
+        loop()
+    })
+    }
+
+    /* … después de createBot (…) … */
+    const sock = await waitForVendor(adapterProvider)   // ← YA existe y trae .ev
+
     sock.ev.on('connection.update', ({ qr, connection }) => {
     if (qr) {
-        console.log('\n⚡ Escaneá este QR en tu WhatsApp:\n')
-        // Dibujito en ASCII para que se vea en Railway
+        console.log('\n⚡  Escaneá este QR en tu WhatsApp:\n')
         qrcode.generate(qr, { small: true })
-        console.log('\n(Se actualiza cada ~60 s)\n')
+        console.log('(se actualiza cada ~60 s)\n')
     }
-    if (connection === 'open') console.log('✅ Sesión iniciada')
+    if (connection === 'open') console.log('✅  Sesión iniciada')
     })
 
     adapterProvider.server.post(
