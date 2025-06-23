@@ -236,7 +236,9 @@ const main = async () => {
 
     const adapterFlow = createFlow([flowSatisfaccion, flowBajo_satisfaccion, flowMedio_satisfaccion, flowAlto_satisfaccion, flowTerminado_satisfaccion, flowRenovacion, flowRenovar, flowTalvez, flowNorenovar, flowTerminado_renovacion])
     
-    const adapterProvider = createProvider(Provider)
+    const adapterProvider = createProvider(Provider,
+        { usePairingCode: true, phoneNumber: process.env.PHONE_NUMBER }
+    )
 
     const adapterDB = new Database({
         host: process.env.POSTGRES_DB_HOST,
