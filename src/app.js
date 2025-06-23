@@ -9,7 +9,6 @@ import { dirname} from 'path'
 import fs from 'fs/promises'
 import dotenv from 'dotenv'
 dotenv.config()
-import qrcode from 'qrcode-terminal'       // 👈 nuevo import
 
 import { flowSatisfaccion, flowBajo_satisfaccion, flowMedio_satisfaccion, flowAlto_satisfaccion, flowTerminado_satisfaccion } from './events/satisfaccion/encuestaSatisfaccion.js'
 
@@ -256,31 +255,6 @@ const main = async () => {
             timeout: 30000,        // 30 s de tope por mensaje: sobrado para esos ~7 s de tabla
             concurrencyLimit: 50    // permite hasta 20 tareas en paralelo (tus ~15 usuarios caben)
         }
-    })
-
-    /* helper  – espera a que vendor exista */
-    const waitForVendor = async (provider, maxMs = 5_000) => {
-    const started = Date.now()
-    return new Promise((resolve, reject) => {
-        const loop = () => {
-        if (provider.vendor && provider.vendor.ev) return resolve(provider.vendor)
-        if (Date.now() - started > maxMs) return reject(new Error('Baileys no inició a tiempo'))
-        setTimeout(loop, 200)      // vuelve a probar en 200 ms
-        }
-        loop()
-    })
-    }
-
-    /* … después de createBot (…) … */
-    const sock = await waitForVendor(adapterProvider)   // ← YA existe y trae .ev
-
-    sock.ev.on('connection.update', ({ qr, connection }) => {
-    if (qr) {
-        console.log('\n⚡  Escaneá este QR en tu WhatsApp:\n')
-        qrcode.generate(qr, { small: true })
-        console.log('(se actualiza cada ~60 s)\n')
-    }
-    if (connection === 'open') console.log('✅  Sesión iniciada')
     })
 
     adapterProvider.server.post(
