@@ -15,7 +15,8 @@
     "@builderbot/database-postgres": "1.2.9",
     "@builderbot/provider-baileys": "1.2.9",
     "dotenv": "^16.5.0",
-    "puppeteer": "^24.10.2"
+    "puppeteer": "^24.10.2",
+    "qrcode-terminal": "^0.12.0"
   },
   "devDependencies": {
     "eslint": "^8.57.0",

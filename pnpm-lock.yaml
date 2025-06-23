@@ -23,6 +23,9 @@ importers:
       puppeteer:
         specifier: ^24.10.2
         version: 24.10.2(typescript@5.8.3)
+      qrcode-terminal:
+        specifier: ^0.12.0
+        version: 0.12.0
     devDependencies:
       eslint:
         specifier: ^8.57.0
@@ -1379,6 +1382,10 @@ packages:
   puppeteer@24.10.2:
     resolution: {integrity: sha512-+k26rCz6akFZntx0hqUoFjCojgOLIxZs6p2k53LmEicwsT8F/FMBKfRfiBw1sitjiCvlR/15K7lBqfjXa251FA==}
     engines: {node: '>=18'}
+    hasBin: true
+
+  qrcode-terminal@0.12.0:
+    resolution: {integrity: sha512-EXtzRZmC+YGmGlDFbXKxQiMZNwCLEO6BANKXG4iCtSIM0yqc/pappSx3RIKr4r0uh5JsBckOXeKrB3Iz7mdQpQ==}
     hasBin: true
 
   qs@6.13.0:
@@ -3150,6 +3157,8 @@ snapshots:
       - supports-color
       - typescript
       - utf-8-validate
+
+  qrcode-terminal@0.12.0: {}
 
   qs@6.13.0:
     dependencies:

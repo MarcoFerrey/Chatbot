@@ -9,6 +9,7 @@ import { dirname} from 'path'
 import fs from 'fs/promises'
 import dotenv from 'dotenv'
 dotenv.config()
+import qrcode from 'qrcode-terminal'       // 👈 nuevo import
 
 import { flowSatisfaccion, flowBajo_satisfaccion, flowMedio_satisfaccion, flowAlto_satisfaccion, flowTerminado_satisfaccion } from './events/satisfaccion/encuestaSatisfaccion.js'
 
@@ -257,18 +258,17 @@ const main = async () => {
         }
     })
 
-    /* -------------------------------------------------------------------- */
-    /*  Esperar a que el provider esté listo y recién ahí usar vendor.ev     */
-    adapterProvider.on('ready', () => {
-    const sock = adapterProvider.vendor            // <-- ya existe
-    sock.ev.on('connection.update', ({ qr }) => {
-        if (qr) {
+    // 👉 en cuanto exista el socket, imprime el QR
+    const sock = adapterProvider.vendor                         // ya está creado
+    sock.ev.on('connection.update', ({ qr, connection }) => {
+    if (qr) {
         console.log('\n⚡ Escaneá este QR en tu WhatsApp:\n')
-        console.log(qr)          // aparece base64 en Deploy Logs
-        }
+        // Dibujito en ASCII para que se vea en Railway
+        qrcode.generate(qr, { small: true })
+        console.log('\n(Se actualiza cada ~60 s)\n')
+    }
+    if (connection === 'open') console.log('✅ Sesión iniciada')
     })
-    })
-    /* -------------------------------------------------------------------- */
 
     adapterProvider.server.post(
         '/v1/satisfaccion',
