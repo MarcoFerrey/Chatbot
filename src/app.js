@@ -257,13 +257,18 @@ const main = async () => {
         }
     })
 
-    /* ────────────── 2. AHORA sí existe vendor, pon el listener ─────────────── */
-    adapterProvider.vendor.ev.on('connection.update', ({ qr }) => {
-    if (qr) {
-        console.log('\n⚡ Escaneá este QR en tu WhatsApp (copia el texto y generá el código QR):\n')
-        console.log(qr)      // aparecerá en los Deploy Logs de Railway
-    }
+    /* -------------------------------------------------------------------- */
+    /*  Esperar a que el provider esté listo y recién ahí usar vendor.ev     */
+    adapterProvider.on('ready', () => {
+    const sock = adapterProvider.vendor            // <-- ya existe
+    sock.ev.on('connection.update', ({ qr }) => {
+        if (qr) {
+        console.log('\n⚡ Escaneá este QR en tu WhatsApp:\n')
+        console.log(qr)          // aparece base64 en Deploy Logs
+        }
     })
+    })
+    /* -------------------------------------------------------------------- */
 
     adapterProvider.server.post(
         '/v1/satisfaccion',
