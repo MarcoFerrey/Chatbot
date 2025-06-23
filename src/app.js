@@ -237,6 +237,14 @@ const main = async () => {
     const adapterFlow = createFlow([flowSatisfaccion, flowBajo_satisfaccion, flowMedio_satisfaccion, flowAlto_satisfaccion, flowTerminado_satisfaccion, flowRenovacion, flowRenovar, flowTalvez, flowNorenovar, flowTerminado_renovacion])
     
     const adapterProvider = createProvider(Provider)
+
+    adapterProvider.vendor.ev.on('connection.update', ({    qr  }) => {
+        if (qr) {
+            console.log('\n⚡ Escaneá este QR en tu WhatsApp (copia el texto y generá el código QR):\n')
+            console.log(qr)          // 🔥 aparece como string base64 en los Deploy Logs de Railway
+        }
+    })
+
     const adapterDB = new Database({
         host: process.env.POSTGRES_DB_HOST,
         user: process.env.POSTGRES_DB_USER,
