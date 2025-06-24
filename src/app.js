@@ -196,7 +196,7 @@ async function verificarNumeroWhatsApp(bot, numero) {
             return true
         } else {
             console.log(`❌ Número ${numero} NO existe en WhatsApp`)
-            await fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
+            fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
@@ -206,7 +206,10 @@ async function verificarNumeroWhatsApp(bot, numero) {
                     fecha: 'No tiene WhatsApp',
                     evento: 'No tiene WhatsApp'
                 })
+            }).then(res => {
+                if (!res.ok) console.error('Sheets devolvieron status', res.status)
             })
+            .catch(err => console.error('Error enviando a Sheets:', err))
             return false
         }
     } catch (error) {
