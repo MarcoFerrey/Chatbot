@@ -16,21 +16,22 @@ export const flowRenovacion = addKeyword(utils.setEvent('Renovacion'))
             puntaje: respuesta
         })
         // Enviando a Google Apps Scripts la RPTas de la primera pregunta
-        try{
-            await fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    celular: ctx.from,
-                    calificacion: respuesta,
-                    comentario: '-',
-                    fecha: new Date().toISOString(),
-                    evento: 'Renovacion'
-                })
+        // 2) Lanzas la petición sin `await` (fire-and-forget)
+        fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+            celular: ctx.from,
+            calificacion: respuesta,
+            comentario: '-',
+            fecha: new Date().toISOString(),
+            evento: 'Renovacion'
             })
-        }catch(error){
-            console.error('Error enviando a Sheets:', error)
-        }
+        })
+        .then(res => {
+            if (!res.ok) console.error('Sheets devolvieron status', res.status)
+        })
+        .catch(err => console.error('Error enviando a Sheets:', err))
 
         if(respuesta == 'Sí, deseo renovarlo'){
             return ctxFn.gotoFlow(flowRenovar)
@@ -49,7 +50,7 @@ export const flowRenovar = addKeyword(EVENTS.ACTION).addAnswer('🙌🏼 ¡Graci
         const lista = ["Estoy satisfecho con el servicio recibido", "Me siento bien atendido por el equipo", "El servicio justifica su valor", "Me ayuda a mantener mis equipos operativos"]
         const input = ctx.body.trim()
         if(!["1","2","3","4"].includes(input)){
-            return ctxFn.fallBack('⚠️ Ups, al parecer hubo un error en la respuesta. Por favor indica tu respuesta del *1 al 3* para calificar correctamente la intentción de renovar el CVA')
+            return ctxFn.fallBack('⚠️ Ups, al parecer hubo un error en la respuesta. Por favor indica tu respuesta del *1 al 4* para calificar correctamente la intentción de renovar el CVA')
         }
         const texto = lista[parseInt(input) - 1]
 
@@ -58,23 +59,25 @@ export const flowRenovar = addKeyword(EVENTS.ACTION).addAnswer('🙌🏼 ¡Graci
             motivo: texto
         })
 
-        try{
-            await fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    celular: ctx.from,
-                    calificacion: ctxFn.state.get('puntaje'),
-                    comentario: texto,
-                    fecha: new Date().toISOString(),
-                    evento: 'Renovacion'
-                })
+        //Enviando a Google Sheets
+        fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+            celular: ctx.from,
+            calificacion: ctxFn.state.get('puntaje'),
+            comentario: texto,
+            fecha: new Date().toISOString(),
+            evento: 'Renovacion'
             })
-            await ctxFn.state.clear()
-            await ctxFn.gotoFlow(flowTerminado_renovacion)
-        }catch(err){
-            console.error('Error enviando a Sheets:', err)
-        }
+        })
+        .then(res => {
+            if (!res.ok) console.error('Sheets devolvieron status', res.status)
+        })
+        .catch(err => console.error('Error enviando a Sheets:', err))
+
+        await ctxFn.state.clear()
+        await ctxFn.gotoFlow(flowTerminado_renovacion)
     }
 )
 
@@ -83,7 +86,7 @@ export const flowTalvez = addKeyword(EVENTS.ACTION).addAnswer('Gracias por tu si
         const lista = ["Quiero más información sobre el plan", "Deseo revisar los precios y condiciones", "Quiero que un asesor me llame", "Prefiero que me contacten más adelante"]
         const input = ctx.body.trim()
         if(!["1","2","3","4"].includes(input)){
-            return ctxFn.fallBack('⚠️ Ups, al parecer hubo un error en la respuesta. Por favor indica tu respuesta del *1 al 3* para calificar correctamente la intentción de renovar el CVA')
+            return ctxFn.fallBack('⚠️ Ups, al parecer hubo un error en la respuesta. Por favor indica tu respuesta del *1 al 4* para calificar correctamente la intentción de renovar el CVA')
         }
         const texto = lista[parseInt(input) - 1]
 
@@ -92,23 +95,25 @@ export const flowTalvez = addKeyword(EVENTS.ACTION).addAnswer('Gracias por tu si
             motivo: texto
         })
 
-        try{
-            await fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    celular: ctx.from,
-                    calificacion: ctxFn.state.get('puntaje'),
-                    comentario: texto,
-                    fecha: new Date().toISOString(),
-                    evento: 'Renovacion'
-                })
+        //Enviando a Google Sheets
+        fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+            celular: ctx.from,
+            calificacion: ctxFn.state.get('puntaje'),
+            comentario: texto,
+            fecha: new Date().toISOString(),
+            evento: 'Renovacion'
             })
-            await ctxFn.state.clear()
-            await ctxFn.gotoFlow(flowTerminado_renovacion)
-        }catch(err){
-            console.error('Error enviando a Sheets:', err)
-        }
+        })
+        .then(res => {
+            if (!res.ok) console.error('Sheets devolvieron status', res.status)
+        })
+        .catch(err => console.error('Error enviando a Sheets:', err))
+
+        await ctxFn.state.clear()
+        await ctxFn.gotoFlow(flowTerminado_renovacion)
     }
 )
 
@@ -117,7 +122,7 @@ export const flowNorenovar = addKeyword(EVENTS.ACTION).addAnswer('Gracias por tu
         const lista = ["El costo es alto para mi operación", "Prefiero hacer el mantenimiento por cuenta propia", "Ya no tengo la máquina", "Prefiero no decirlo"]
         const input = ctx.body.trim()
         if(!["1","2","3","4"].includes(input)){
-            return ctxFn.fallBack('⚠️ Ups, al parecer hubo un error en la respuesta. Por favor indica tu respuesta del *1 al 3* para calificar correctamente la intentción de renovar el CVA')
+            return ctxFn.fallBack('⚠️ Ups, al parecer hubo un error en la respuesta. Por favor indica tu respuesta del *1 al 4* para calificar correctamente la intentción de renovar el CVA')
         }
         const texto = lista[parseInt(input) - 1]
 
@@ -126,23 +131,25 @@ export const flowNorenovar = addKeyword(EVENTS.ACTION).addAnswer('Gracias por tu
             motivo: texto
         })
 
-        try{
-            await fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    celular: ctx.from,
-                    calificacion: ctxFn.state.get('puntaje'),
-                    comentario: texto,
-                    fecha: new Date().toISOString(),
-                    evento: 'Renovacion'
-                })
+        //Enviando a Google Sheets
+        fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+            celular: ctx.from,
+            calificacion: ctxFn.state.get('puntaje'),
+            comentario: texto,
+            fecha: new Date().toISOString(),
+            evento: 'Renovacion'
             })
-            await ctxFn.state.clear()
-            await ctxFn.gotoFlow(flowTerminado_renovacion)
-        }catch(err){
-            console.error('Error enviando a Sheets:', err)
-        }
+        })
+        .then(res => {
+            if (!res.ok) console.error('Sheets devolvieron status', res.status)
+        })
+        .catch(err => console.error('Error enviando a Sheets:', err))
+
+        await ctxFn.state.clear()
+        await ctxFn.gotoFlow(flowTerminado_renovacion)
     }
 )
 

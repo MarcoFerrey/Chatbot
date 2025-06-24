@@ -13,21 +13,20 @@ export const flowSatisfaccion = addKeyword(utils.setEvent('Satisfaccion')).addAn
             puntaje: n
         })
         // Enviando a Google Apps Scripts la RPTas de la primera pregunta
-        try{
-            await fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    celular: ctx.from,
-                    calificacion: n,
-                    comentario: '-',
-                    fecha: new Date().toISOString(),
-                    evento: 'Satisfaccion'
-                })
+        fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+            celular: ctx.from,
+            calificacion: n,
+            comentario: '-',
+            fecha: new Date().toISOString(),
+            evento: 'Satisfaccion'
             })
-        }catch(error){
-            console.error('Error enviando a Sheets:', error)
-        }
+        }).then(res => {
+            if (!res.ok) console.error('Sheets devolvieron status', res.status)
+        })
+        .catch(err => console.error('Error enviando a Sheets:', err))
 
         if(["1","2","3","4","5"].includes(n)){
             return ctxFn.gotoFlow(flowBajo_satisfaccion)
@@ -42,7 +41,7 @@ export const flowSatisfaccion = addKeyword(utils.setEvent('Satisfaccion')).addAn
 )
 
 export const flowBajo_satisfaccion = addKeyword(EVENTS.ACTION)
-.addAnswer('✅*Gracias por tu calificación.* \n\n 👉🏼 *2. ¿Por qué diste esa calificación?* \n\n*1.* El servicio no cumplió con lo prometido.\n*2.* El producto no fue de calidad.\n*3.* Mala atención o poco soporte técnico.\n*4*. 4. Tiempo de respuesta muy lento (en campo o remoto). \n\nSelecciona un número del *1 al 4* por favor.\n📌 Si te equivocas en este paso, solo vuelve a escribir el número del 1 al 4 😉', {captrue: true, delay: 1000}, 
+.addAnswer('✅*Gracias por tu calificación.* \n\n 👉🏼 *2. ¿Por qué diste esa calificación?* \n\n*1.* El servicio no cumplió con lo prometido.\n*2.* El producto no fue de calidad.\n*3.* Mala atención o poco soporte técnico.\n*4*. 4. Tiempo de respuesta muy lento (en campo o remoto). \n\nSelecciona un número del *1 al 4* por favor.\n📌 Si te equivocas en este paso, solo vuelve a escribir el número del 1 al 4 😉', {capture: true, delay: 1000}, 
     async (ctx, ctxFn) => {
         const lista = ["El servicio no cumplió con lo prometido.", "El producto no fue de calidad", "Mala atención o poco soporte técnico", "Tiempo de respuesta muy lento (en campo o remoto)."]
 
@@ -57,23 +56,23 @@ export const flowBajo_satisfaccion = addKeyword(EVENTS.ACTION)
             motivo: texto
         })
 
-        try{
-            await fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    celular: ctx.from,
-                    calificacion: ctxFn.state.get('puntaje'),
-                    comentario: texto,
-                    fecha: new Date().toISOString(),
-                    evento: 'Satisfaccion'
-                })
+        fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                celular: ctx.from,
+                calificacion: ctxFn.state.get('puntaje'),
+                comentario: texto,
+                fecha: new Date().toISOString(),
+                evento: 'Satisfaccion'
             })
-            await ctxFn.state.clear()
-            await ctxFn.gotoFlow(flowTerminado_satisfaccion)
-        }catch(err){
-            console.error('Error enviando a Sheets:', err)
-        }
+        }).then(res => {
+            if (!res.ok) console.error('Sheets devolvieron status', res.status)
+        })
+        .catch(err => console.error('Error enviando a Sheets:', err))
+        
+        await ctxFn.state.clear()
+        await ctxFn.gotoFlow(flowTerminado_satisfaccion)
     }
 )
 
@@ -92,23 +91,23 @@ export const flowMedio_satisfaccion = addKeyword(EVENTS.ACTION).addAnswer('✅*G
             motivo: texto
         })
 
-        try{
-            await fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    celular: ctx.from,
-                    calificacion: ctxFn.state.get('puntaje'),
-                    comentario: texto,
-                    fecha: new Date().toISOString(),
-                    evento: 'Satisfaccion'
-                })
+        fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                celular: ctx.from,
+                calificacion: ctxFn.state.get('puntaje'),
+                comentario: texto,
+                fecha: new Date().toISOString(),
+                evento: 'Satisfaccion'
             })
-            await ctxFn.state.clear()
-            await ctxFn.gotoFlow(flowTerminado_satisfaccion)
-        }catch(err){
-            console.error('Error enviando a Sheets:', err)
-        }
+        }).then(res => {
+            if (!res.ok) console.error('Sheets devolvieron status', res.status)
+        })
+        .catch(err => console.error('Error enviando a Sheets:', err))
+        
+        await ctxFn.state.clear()
+        await ctxFn.gotoFlow(flowTerminado_satisfaccion)
     }
 )
 
@@ -123,23 +122,24 @@ export const flowAlto_satisfaccion = addKeyword(EVENTS.ACTION).addAnswer('✅*Gr
         }
         const texto = lista[parseInt(n) - 1]
 
-        try{
-            await fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    celular: ctx.from,
-                    calificacion: ctxFn.state.get('puntaje'),
-                    comentario: texto,
-                    fecha: new Date().toISOString(),
-                    evento: 'Satisfaccion'
-                })
+        fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                celular: ctx.from,
+                calificacion: ctxFn.state.get('puntaje'),
+                comentario: texto,
+                fecha: new Date().toISOString(),
+                evento: 'Satisfaccion'
             })
-            await ctxFn.state.clear()
-            await ctxFn.gotoFlow(flowTerminado_satisfaccion)
-        }catch(err){
-            console.error('Error enviando a Sheets:', err)
-        }
+        }).then(res => {
+            if (!res.ok) console.error('Sheets devolvieron status', res.status)
+        })
+        .catch(err => console.error('Error enviando a Sheets:', err))
+
+        await ctxFn.state.clear()
+        await ctxFn.gotoFlow(flowTerminado_satisfaccion)
+
     }
 )
 
