@@ -1,7 +1,7 @@
 import { createBot, createProvider, createFlow } from '@builderbot/bot'
 import { PostgreSQLAdapter as Database } from '@builderbot/database-postgres'
 import { BaileysProvider as Provider } from '@builderbot/provider-baileys'
-import { generarImagen} from './functions/imageHTML.js'
+import { startBrowser, generarImagen} from './functions/imageHTML.js'
 import path from 'path'
 import { join } from 'path'
 import { fileURLToPath } from 'url'
@@ -236,6 +236,8 @@ const PORT = process.env.PORT ?? 3008
 
 const main = async () => {
     await loadTemplates()
+
+    await startBrowser() 
 
     const adapterFlow = createFlow([flowSatisfaccion, flowBajo_satisfaccion, flowMedio_satisfaccion, flowAlto_satisfaccion, flowTerminado_satisfaccion, flowRenovacion, flowRenovar, flowTalvez, flowNorenovar, flowTerminado_renovacion])
     
