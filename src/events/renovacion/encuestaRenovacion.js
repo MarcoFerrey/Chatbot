@@ -3,7 +3,7 @@ import { utils } from '@builderbot/bot'
 import { addKeyword } from '@builderbot/bot'
 
 export const flowRenovacion = addKeyword(utils.setEvent('Renovacion'))
-.addAnswer('¿Estás interesado en renovar tu acuerdo CVA?\n Escriba del 1 al 3 según las opcciones\n *1.* ✅ Sí, deseo renovarlo\n *2.* 🤔 Aún lo estoy evaluando\n *3.* ❌ No deseo renovarlo', {capture: true, delay: 1000}, 
+.addAnswer('¿Estás interesado en renovar tu acuerdo CVA?\n  Escriba del *1 al 3* según las opcciones\n *1.* ✅ Sí, deseo renovarlo\n *2.* 🤔 Aún lo estoy evaluando\n *3.* ❌ No deseo renovarlo', {capture: true, delay: 1000}, 
     async (ctx, ctxFn) => {
         const lista = ["Sí, deseo renovarlo", "Aún lo estoy pensando", "No deseo renovarlo"]
         const input = ctx.body.trim()
@@ -15,17 +15,30 @@ export const flowRenovacion = addKeyword(utils.setEvent('Renovacion'))
         await ctxFn.state.update({
             puntaje: respuesta
         })
+        const series = ctxFn.state.get('series')
+        const cliente = ctxFn.state.get('cliente')
+        const planes = ctxFn.state.get('planes')
+        const modelos = ctxFn.state.get('modelos')
+        const inicios = ctxFn.state.get('inicios')
+        const correos = ctxFn.state.get('correos')
+        console.log(`Serie: ${series}`)
         // Enviando a Google Apps Scripts la RPTas de la primera pregunta
         // 2) Lanzas la petición sin `await` (fire-and-forget)
         fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-            celular: ctx.from,
-            calificacion: respuesta,
-            comentario: '-',
-            fecha: new Date().toISOString(),
-            evento: 'Renovacion'
+              celular: ctx.from.slice(2),
+              calificacion: respuesta,
+              comentario: '-',
+              fecha: new Date().toISOString(),
+              evento: 'Renovacion',
+              series: series,
+              cliente: cliente,
+              modelos: modelos,
+              planes: planes,
+              inicios: inicios,
+              correos: correos
             })
         })
         .then(res => {
@@ -45,7 +58,7 @@ export const flowRenovacion = addKeyword(utils.setEvent('Renovacion'))
     }
 )
 
-export const flowRenovar = addKeyword(EVENTS.ACTION).addAnswer('🙌🏼 ¡Gracias por seguir confiando en nosotros!\n*¿Qué motivo te llevó a renovar tu acuerdo CVA?*\n\nEscriba un número del *1 al 4* según la opción\n\n*1.* 🚠 Estoy satisfecho con el servicio recibido\n *2.* 📞 Me siento bien atendido por el equipo\n *3.* 💰 El servicio justifica su valor\n *4.* 🚜 Me ayuda a mantener mis equipos operativos', {capture: true, delay: 1000},
+export const flowRenovar = addKeyword(EVENTS.ACTION).addAnswer('🙌🏼 ¡Gracias por seguir confiando en nosotros! Y como última pregunta.\n*¿Qué motivo te llevó a renovar tu acuerdo CVA?*\n\nEscriba un número del *1 al 4* según la opción\n\n*1.* 🚠 Estoy satisfecho con el servicio recibido\n *2.* 📞 Me siento bien atendido por el equipo\n *3.* 💰 El servicio justifica su valor\n *4.* 🚜 Me ayuda a mantener mis equipos operativos', {capture: true, delay: 1000},
     async (ctx, ctxFn) => {
         const lista = ["Estoy satisfecho con el servicio recibido", "Me siento bien atendido por el equipo", "El servicio justifica su valor", "Me ayuda a mantener mis equipos operativos"]
         const input = ctx.body.trim()
@@ -59,16 +72,30 @@ export const flowRenovar = addKeyword(EVENTS.ACTION).addAnswer('🙌🏼 ¡Graci
             motivo: texto
         })
 
+        const series = ctxFn.state.get('series')
+        const cliente = ctxFn.state.get('cliente')
+        const planes = ctxFn.state.get('planes')
+        const modelos = ctxFn.state.get('modelos')
+        const inicios = ctxFn.state.get('inicios')
+        const correos = ctxFn.state.get('correos')
+        console.log(`Serie: ${series}`)
+
         //Enviando a Google Sheets
         fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-            celular: ctx.from,
-            calificacion: ctxFn.state.get('puntaje'),
-            comentario: texto,
-            fecha: new Date().toISOString(),
-            evento: 'Renovacion'
+              celular: ctx.from.slice(2),
+              calificacion: ctxFn.state.get('puntaje'),
+              comentario: texto,
+              fecha: new Date().toISOString(),
+              evento: 'Renovacion',
+              series: series,
+              cliente: cliente,
+              modelos: modelos,
+              planes: planes,
+              inicios: inicios,
+              correos: correos,
             })
         })
         .then(res => {
@@ -95,16 +122,30 @@ export const flowTalvez = addKeyword(EVENTS.ACTION).addAnswer('Gracias por tu si
             motivo: texto
         })
 
+        const series = ctxFn.state.get('series')
+        const cliente = ctxFn.state.get('cliente')
+        const planes = ctxFn.state.get('planes')
+        const modelos = ctxFn.state.get('modelos')
+        const inicios = ctxFn.state.get('inicios')
+        const correos = ctxFn.state.get('correos')
+        console.log(`Serie: ${series}`)
+
         //Enviando a Google Sheets
         fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-            celular: ctx.from,
-            calificacion: ctxFn.state.get('puntaje'),
-            comentario: texto,
-            fecha: new Date().toISOString(),
-            evento: 'Renovacion'
+              celular: ctx.from.slice(2),
+              calificacion: ctxFn.state.get('puntaje'),
+              comentario: texto,
+              fecha: new Date().toISOString(),
+              evento: 'Renovacion',
+              series: series,
+              cliente: cliente,
+              modelos: modelos,
+              planes: planes,
+              inicios: inicios,
+              correos: correos
             })
         })
         .then(res => {
@@ -131,16 +172,30 @@ export const flowNorenovar = addKeyword(EVENTS.ACTION).addAnswer('Gracias por tu
             motivo: texto
         })
 
+        const series = ctxFn.state.get('series')
+        const cliente = ctxFn.state.get('cliente')
+        const planes = ctxFn.state.get('planes')
+        const modelos = ctxFn.state.get('modelos')
+        const inicios = ctxFn.state.get('inicios')
+        const correos = ctxFn.state.get('correos')
+        console.log(`Serie: ${series}`)
+
         //Enviando a Google Sheets
         fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-            celular: ctx.from,
-            calificacion: ctxFn.state.get('puntaje'),
-            comentario: texto,
-            fecha: new Date().toISOString(),
-            evento: 'Renovacion'
+              celular: ctx.from.slice(2),
+              calificacion: ctxFn.state.get('puntaje'),
+              comentario: texto,
+              fecha: new Date().toISOString(),
+              evento: 'Renovacion',
+              series: series,
+              cliente: cliente,
+              modelos: modelos,
+              planes: planes,
+              inicios: inicios,
+              correos: correos,
             })
         })
         .then(res => {

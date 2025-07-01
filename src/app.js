@@ -196,20 +196,6 @@ async function verificarNumeroWhatsApp(bot, numero) {
             return true
         } else {
             console.log(`❌ Número ${numero} NO existe en WhatsApp`)
-            fetch('https://script.google.com/macros/s/AKfycbyCFwwVrLsKG_xPC1t2P_yntt7u_chTxIDGCuQUue-m-AFIqNmExnv0Jk2wtsXVoTGQdQ/exec', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    celular: numero,
-                    calificacion: 'No tiene WhatsApp',
-                    comentario: 'No tiene WhatsApp',
-                    fecha: 'No tiene WhatsApp',
-                    evento: 'No tiene WhatsApp'
-                })
-            }).then(res => {
-                if (!res.ok) console.error('Sheets devolvieron status', res.status)
-            })
-            .catch(err => console.error('Error enviando a Sheets:', err))
             return false
         }
     } catch (error) {
@@ -241,8 +227,8 @@ const main = async () => {
 
     const adapterFlow = createFlow([flowSatisfaccion, flowBajo_satisfaccion, flowMedio_satisfaccion, flowAlto_satisfaccion, flowTerminado_satisfaccion, flowRenovacion, flowRenovar, flowTalvez, flowNorenovar, flowTerminado_renovacion])
     
-    const adapterProvider = createProvider(Provider,
-        { usePairingCode: true, phoneNumber: process.env.PHONE_NUMBER }
+    const adapterProvider = createProvider(Provider//,
+        //{ usePairingCode: true, phoneNumber: process.env.PHONE_NUMBER }
     )
 
     const adapterDB = new Database({
@@ -287,13 +273,23 @@ const main = async () => {
                     })
                     console.log('Imagen enviado')
                     await eliminarArchivo(imgPath)
-
+                    
+                    //Guardando variables globalbes
+                    await bot.state().update({
+                      series: datos.series,
+                      cliente: datos.cliente,
+                      modelos: datos.modelos,
+                      planes: datos.planes,
+                      inicios: datos.inicios
+                    })
                     // Disparar flujo de satisfacción
                     await bot.dispatch('Satisfaccion', {
                         from: `51${number}`,
                     })
 
-                    return res.end('Datos enviado')
+                    return res.end(JSON.stringify({
+                      status: 'Enviado, Es'
+                    }))
                 }else{
                     console.log(`❌ No se puede enviar mensaje. Número 51${number} no existe en WhatsApp`)
                     return res.end(`Error: No existe el numero en WhatsApp 51${number}`)
@@ -329,20 +325,35 @@ const main = async () => {
                     console.log('Imagen enviado')
                     // Eliminar imagen
                     await eliminarArchivo(imgPath)
-
+                    
+                    //Guardando variables
+                    await bot.state(`51${number}`).update({
+                      series: datos.series,
+                      cliente: datos.cliente,
+                      modelos: datos.modelos,
+                      planes: datos.planes,
+                      inicios: datos.inicios,
+                      correos: datos.correos_vendedores,
+                    })
                     // Disparar el flujo de renovacion
                     await bot.dispatch('Renovacion', {
-                        from: `51${number}`
+                      from: `51${number}`
                     })
 
-                    return res.end('Datos enviado')
+                    return res.end(JSON.stringify({
+                      status: 'Datos enviados'
+                    }))
                 } else{
                     console.log(`❌ No se puede enviar mensaje. Número ${number} no existe en WhatsApp`)
-                    return res.end(`Error: No existe el numero en WhatsApp ${number}`)
+                    return res.end(JSON.stringify({
+                      state: `Error: No existe el numero en WhatsApp ${number}`
+                    }))
                 }
             } catch (error) {
                 console.log(`Error para enviar en 'Renovacion': ${error}`)
-                return res.end(`Error: ${error.message}`)
+                return res.end(JSON.stringify({
+                  state: `Error: ${error.message}`
+                }))
             }
         })
     )

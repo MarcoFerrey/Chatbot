@@ -21,7 +21,8 @@ export const flowSatisfaccion = addKeyword(utils.setEvent('Satisfaccion')).addAn
             calificacion: n,
             comentario: '-',
             fecha: new Date().toISOString(),
-            evento: 'Satisfaccion'
+            evento: 'Satisfaccion',
+            
             })
         }).then(res => {
             if (!res.ok) console.error('Sheets devolvieron status', res.status)
